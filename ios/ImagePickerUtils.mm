@@ -77,6 +77,7 @@
     } else if ((target == library) && ([options[@"mediaType"] isEqualToString:@"mixed"])) {
         configuration.filter = [PHPickerFilter anyFilterMatchingSubfilters: @[PHPickerFilter.imagesFilter, PHPickerFilter.videosFilter]];
     }
+        configuration.selection = PHPickerConfigurationSelectionOrdered;
     return configuration;
 #else
     return nil;
