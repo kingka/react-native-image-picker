@@ -521,27 +521,39 @@ CGImagePropertyOrientation CGImagePropertyOrientationForUIImageOrientation(UIIma
         return;
     }
     
-    UIView *backView = [UIView new];
-    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
-    
-    // 设置 backView 的大小为 picker.view 的 bounds
-    backView.frame = picker.view.bounds;
-
-    // 设置自动调整掩码，以适应视图大小的变化
+    // 在开始处理之前，创建并配置 backView
+    UIView *backView = [[UIView alloc] initWithFrame:picker.view.bounds];
     backView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-
-    // 设置背景颜色（可选），提供视觉反馈
     backView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.5];
-
-    // 确保 userInteractionEnabled 为 YES，以拦截触摸事件
     backView.userInteractionEnabled = YES;
-    
-    // 将 activityIndicator 添加到 backView 上
-    activityIndicator.center = backView.center;
+
+    // 创建并配置 activityIndicator
+    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
+    [activityIndicator setColor:[UIColor whiteColor]];
+
+    // 调整 activityIndicator 的位置，使其稍微上移，为下面的标签腾出空间
+    activityIndicator.center = CGPointMake(backView.center.x, backView.center.y - 20);
+    [activityIndicator startAnimating];
+
+    // 创建并配置 loadingLabel
+    UILabel *loadingLabel = [[UILabel alloc] init];
+    loadingLabel.text = @"Syncing from iCloud...";
+    loadingLabel.textColor = [UIColor whiteColor];
+    loadingLabel.textAlignment = NSTextAlignmentCenter;
+    loadingLabel.font = [UIFont systemFontOfSize:16];
+
+    // 设置 loadingLabel 的大小和位置
+    [loadingLabel sizeToFit];
+    // 将 loadingLabel 的中心位置设置在 activityIndicator 的正下方
+    loadingLabel.center = CGPointMake(backView.center.x, backView.center.y + 20);
+
+    // 将 activityIndicator 和 loadingLabel 添加到 backView 上
     [backView addSubview:activityIndicator];
-    
+    [backView addSubview:loadingLabel];
+
     // 将 backView 添加到 picker.view 上，并确保其位于最上层
     [picker.view addSubview:backView];
+    [picker.view bringSubviewToFront:backView];
     
     [activityIndicator startAnimating];
     
