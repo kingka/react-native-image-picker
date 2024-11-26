@@ -537,7 +537,7 @@ CGImagePropertyOrientation CGImagePropertyOrientationForUIImageOrientation(UIIma
 
     // 创建并配置 loadingLabel
     UILabel *loadingLabel = [[UILabel alloc] init];
-    loadingLabel.text = @"Syncing from iCloud...";
+    loadingLabel.text = self.options[@"loadingLabelText"];
     loadingLabel.textColor = [UIColor whiteColor];
     loadingLabel.textAlignment = NSTextAlignmentCenter;
     loadingLabel.font = [UIFont systemFontOfSize:16];
