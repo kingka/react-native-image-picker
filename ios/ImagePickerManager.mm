@@ -506,7 +506,7 @@ CGImagePropertyOrientation CGImagePropertyOrientationForUIImageOrientation(UIIma
 
 - (void)picker:(PHPickerViewController *)picker didFinishPicking:(NSArray<PHPickerResult *> *)results API_AVAILABLE(ios(14))
 {
-    [picker dismissViewControllerAnimated:YES completion:nil];
+    
 
     if (photoSelected == YES) {
         return;
@@ -514,12 +514,37 @@ CGImagePropertyOrientation CGImagePropertyOrientationForUIImageOrientation(UIIma
     photoSelected = YES;
 
     if (results.count == 0) {
+        [picker dismissViewControllerAnimated:YES completion:nil];
         dispatch_async(dispatch_get_main_queue(), ^{
             self.callback(@[@{@"didCancel": @YES}]);
         });
         return;
     }
+    
+    UIView *backView = [UIView new];
+    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
+    
+    // 设置 backView 的大小为 picker.view 的 bounds
+    backView.frame = picker.view.bounds;
 
+    // 设置自动调整掩码，以适应视图大小的变化
+    backView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
+    // 设置背景颜色（可选），提供视觉反馈
+    backView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.5];
+
+    // 确保 userInteractionEnabled 为 YES，以拦截触摸事件
+    backView.userInteractionEnabled = YES;
+    
+    // 将 activityIndicator 添加到 backView 上
+    activityIndicator.center = backView.center;
+    [backView addSubview:activityIndicator];
+    
+    // 将 backView 添加到 picker.view 上，并确保其位于最上层
+    [picker.view addSubview:backView];
+    
+    [activityIndicator startAnimating];
+    
     dispatch_group_t completionGroup = dispatch_group_create();
     NSMutableArray<NSDictionary *> *assets = [[NSMutableArray alloc] initWithCapacity:results.count];
     for (int i = 0; i < results.count; i++) {
@@ -578,7 +603,11 @@ CGImagePropertyOrientation CGImagePropertyOrientationForUIImageOrientation(UIIma
 
         NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
         [response setObject:assets forKey:@"assets"];
-
+        
+        [activityIndicator stopAnimating];
+        [backView removeFromSuperview];
+        
+        [picker dismissViewControllerAnimated:YES completion:nil];
         self.callback(@[response]);
     });
 }
